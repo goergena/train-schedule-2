@@ -1,15 +1,17 @@
 $(document).ready(function () {
 
+
     // Initialize Firebase
     var config = {
-        apiKey: "AIzaSyAeSEQnspIfuu39mrcXEmVWVUeKe2GKcn8",
-        authDomain: "train-schedule-1ec1e.firebaseapp.com",
-        databaseURL: "https://train-schedule-1ec1e.firebaseio.com",
-        projectId: "train-schedule-1ec1e",
-        storageBucket: "",
-        messagingSenderId: "708784360533"
+        apiKey: "AIzaSyAjWOkVx7_9m5A5ivUMDg7tPy6jXwPlN-Q",
+        authDomain: "train-sched-2.firebaseapp.com",
+        databaseURL: "https://train-sched-2.firebaseio.com",
+        projectId: "train-sched-2",
+        storageBucket: "train-sched-2.appspot.com",
+        messagingSenderId: "113591624581"
     };
     firebase.initializeApp(config);
+
 
     var database = firebase.database();
 
@@ -26,10 +28,10 @@ $(document).ready(function () {
             firstTime: firstTime,
             frequency: frequency,
         });
-        
+
     });
 
-    database.ref().on("child_added", function(snapshot) {
+    database.ref().on("child_added", function (snapshot) {
         var data = snapshot.val();
         var row = $("<tr>");
         var head = $("<th scope='row'</th>");
@@ -47,13 +49,13 @@ $(document).ready(function () {
         next.text(nextArrivalConverted);
         var wait = $("<td>");
         wait.text(calcWait(nextArrivalInMin, currentTime));
-        
+
         row.append(head, dest, freq, next, wait);
         $("tbody").append(row);
-  
-      }, function(errorObject) {
+
+    }, function (errorObject) {
         console.log("The read failed: " + errorObject.code);
-      });
+    });
 
     function calcTime() {
         var d = new Date();
@@ -96,10 +98,10 @@ $(document).ready(function () {
             convertedMin = "0" + convertedMinNum;
         }
         if (convertedHours > 12) {
-            convertedHours-=12;
+            convertedHours -= 12;
             return convertedHours + ":" + convertedMin + " PM";
-        } else if(convertedHours ===0) {
-            convertedHours+=12;
+        } else if (convertedHours === 0) {
+            convertedHours += 12;
             return convertedHours + ":" + convertedMin + " AM";
         } else {
             return convertedHours + ":" + convertedMin + " AM";
