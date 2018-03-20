@@ -1,6 +1,5 @@
 $(document).ready(function () {
 
-
     // Initialize Firebase
     var config = {
         apiKey: "AIzaSyAjWOkVx7_9m5A5ivUMDg7tPy6jXwPlN-Q",
@@ -11,7 +10,6 @@ $(document).ready(function () {
         messagingSenderId: "113591624581"
     };
     firebase.initializeApp(config);
-
 
     var database = firebase.database();
 
@@ -40,15 +38,15 @@ $(document).ready(function () {
         dest.text(data.destination);
         var freq = $("<td>");
         freq.text(data.frequency);
+
         var next = $("<td>");
-        var currentTime = calcTime();
-        console.log(typeof currentTime);
-        var nextArrivalInMin = calculateNextArrival(data.firstTime, data.frequency, currentTime);
-        var nextArrivalConverted = timeConverter(nextArrivalInMin);
-        console.log(nextArrivalConverted);
-        next.text(nextArrivalConverted);
+        var now = moment();
+        var firstArrival = moment(data.firstTime, "HH:mm");
+        var nextArrival = calculateNextArrival(firstArrival, now, data.frequency);
+        next.text(nextArrival.format("hh:mm A"));
+
         var wait = $("<td>");
-        wait.text(calcWait(nextArrivalInMin, currentTime));
+        wait.text(nextArrival.diff(now, "minutes"));
 
         row.append(head, dest, freq, next, wait);
         $("tbody").append(row);
@@ -57,54 +55,17 @@ $(document).ready(function () {
         console.log("The read failed: " + errorObject.code);
     });
 
-    function calcTime() {
-        var d = new Date();
-        console.log(d.getHours() * 60 + d.getMinutes());
-        return d.getHours() * 60 + d.getMinutes();
-    }
 
     function calculateNextArrival(x, y, z) {
-        //x will be first train time
-        //y will be freq;
-        //z will be current Time
-        var arr = x.split(":");
-        var milHours = parseInt(arr[0]);
-        var milMin = parseInt(arr[1]);
-        var firstInMin = milHours * 60 + milMin;
+        //x = firstArrival; y = now; z = freq
 
-        while (firstInMin < z) {
-            firstInMin += parseInt(y);
-        };
-        if (firstInMin >= z) {
-            var nextArrival = firstInMin;
-            return nextArrival;
-        }
-    };
-
-    function calcWait(a, b) {
-        return a - b;
-    }
-
-    function timeConverter(z) {
-        //z will be nextArrival
-        var convertedHours = Math.floor(z / 60);
-        while (convertedHours >= 24) {
-            convertedHours -= 24;
-        };
-
-        var convertedMinNum = z % 60;
-        var convertedMin = convertedMinNum.toString();
-        if (convertedMin.length === 1) {
-            convertedMin = "0" + convertedMinNum;
-        }
-        if (convertedHours > 12) {
-            convertedHours -= 12;
-            return convertedHours + ":" + convertedMin + " PM";
-        } else if (convertedHours === 0) {
-            convertedHours += 12;
-            return convertedHours + ":" + convertedMin + " AM";
+        if (x > y) {
+            return x;
         } else {
-            return convertedHours + ":" + convertedMin + " AM";
+            var differenceTimes = y.diff(x, "minutes");
+            var tRemainder = differenceTimes % parseInt(z);
+            var waitInMin = parseInt(z) - tRemainder;
+            return y.add(waitInMin, "m");
         }
     };
 
