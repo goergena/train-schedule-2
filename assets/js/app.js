@@ -54,7 +54,6 @@
 
 
     function calculateNextArrival(firstTrain, now, frequency) {
-        //x = firstArrival; y = now; z = freq
 
         if (firstTrain > now) {
             return firstTrain;
